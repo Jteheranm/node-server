@@ -1,0 +1,12 @@
+[
+  {
+    "indicador": "Ir por los niños a la escuela",
+    "descripcion": "a las 12 pm",
+    "completada": true
+  },
+  {
+    "indicador": "Leer un libro ",
+    "descripcion": "padre rico padre pobre",
+    "completada": false
+  }
+]
