@@ -27,26 +27,42 @@ function loadTasks() {
 }
 
 function addTask(indicador, descripcion) {
-  tasks.push({ indicador, descripcion, completada: false });
-  saveTasks();
-  console.log("Tarea añadida.");
+  return new Promise((resolve, reject) => {
+    if (!indicador || !descripcion) {
+      reject(new Error("El indicador y la descripción son obligatorios."));
+      return;
+    }
+
+    tasks.push({ indicador, descripcion, completada: false });
+    saveTasks();
+    resolve("Tarea añadida.");
+  });
 }
 
 function deleteTask(indicador) {
-  tasks = tasks.filter((task) => task.indicador !== indicador);
-  saveTasks();
-  console.log("Tarea eliminada.");
-}
+  return new Promise((resolve, reject) => {
+    const taskIndex = tasks.findIndex((task) => task.indicador === indicador);
+    if (taskIndex === -1) {
+      reject(new Error("Tarea no encontrada."));
+      return;
+    }
 
-function completeTask(indicador) {
-  const task = tasks.find((task) => task.indicador === indicador);
-  if (task) {
-    task.completada = true;
+    tasks.splice(taskIndex, 1);
     saveTasks();
-    console.log("Tarea completada.");
-  } else {
-    console.log("Tarea no encontrada.");
-  }
+    resolve("Tarea eliminada.");
+  });
+}
+function completeTask(indicador) {
+  return new Promise((resolve, reject) => {
+    const task = tasks.find((task) => task.indicador === indicador);
+    if (task) {
+      task.completada = true;
+      saveTasks();
+      resolve("Tarea completada.");
+    } else {
+      reject(new Error("Tarea no encontrada."));
+    }
+  });
 }
 
 function showTasks() {
@@ -57,7 +73,7 @@ function showTasks() {
   });
 }
 
-function askForAction() {
+async function askForAction() {
   rl.question(
     "\n¿Qué acción deseas realizar? (añadir, eliminar, completar, mostrar, salir): ",
     (answer) => {
@@ -68,24 +84,45 @@ function askForAction() {
 
       switch (answer) {
         case "añadir":
-          rl.question("Indicador de la tarea: ", (indicador) => {
-            rl.question("Descripción de la tarea: ", (descripcion) => {
-              addTask(indicador, descripcion);
+          rl.question("Indicador de la tarea: ", async (indicador) => {
+            rl.question("Descripción de la tarea: ", async (descripcion) => {
+              try {
+                const result = await addTask(indicador, descripcion);
+                console.log(result);
+              } catch (error) {
+                console.error(error.message);
+              }
               askForAction();
             });
           });
           break;
         case "eliminar":
-          rl.question("Indicador de la tarea a eliminar: ", (indicador) => {
-            deleteTask(indicador);
-            askForAction();
-          });
+          rl.question(
+            "Indicador de la tarea a eliminar: ",
+            async (indicador) => {
+              try {
+                const result = await deleteTask(indicador);
+                console.log(result);
+              } catch (error) {
+                console.error(error.message);
+              }
+              askForAction();
+            }
+          );
           break;
         case "completar":
-          rl.question("Indicador de la tarea a completar: ", (indicador) => {
-            completeTask(indicador);
-            askForAction();
-          });
+          rl.question(
+            "Indicador de la tarea a completar: ",
+            async (indicador) => {
+              try {
+                const result = await completeTask(indicador);
+                console.log(result);
+              } catch (error) {
+                console.error(error.message);
+              }
+              askForAction();
+            }
+          );
           break;
         case "mostrar":
           showTasks();
@@ -100,8 +137,8 @@ function askForAction() {
   );
 }
 
-// Cargar tareas al iniciar el programa
+// cargar tareas
 loadTasks();
 
-// Ejecutamos la función para preguntar por la acción inicial
+// ejecutar la funcion para preguntar por la acción inicial
 askForAction();

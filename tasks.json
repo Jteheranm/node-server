@@ -8,5 +8,10 @@
     "indicador": "Leer un libro ",
     "descripcion": "padre rico padre pobre",
     "completada": false
+  },
+  {
+    "indicador": "salir",
+    "descripcion": "perro",
+    "completada": false
   }
 ]
